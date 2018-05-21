@@ -4,9 +4,6 @@ from tmcmarkdown.extensions.gifv import GifV
 
 
 class TestGifV(unittest.TestCase):
-    def setUp(self):
-        pass
-
     def testNotEnoughOptions(self):
         provided = '<gifv filename />'
         expected = '<p><gifv filename /></p>'

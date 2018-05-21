@@ -6,12 +6,11 @@ import re
 
 class GifV(Extension):
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.config = {
             'video_url_base': ['//assets.themetacity.com/gifv/', 'URL of the directory the file resides in'],
             'css_class': ['gifv', 'CSS class to append to the video to identify it as a gifv']
         }
-        self.RE = re.compile(r'<gifv ([\w0-9_-]+) ([\w0-9_-]+[,?[\w0-9_-]+]?) ?/>$')
-        super(GifV, self).__init__(*args, **kwargs)
 
     def extendMarkdown(self, md, md_globals):
         md.preprocessors.add('gifv', GifVPreprocessor(self), '_begin')
@@ -19,13 +18,14 @@ class GifV(Extension):
 
 class GifVPreprocessor(Preprocessor):
     def __init__(self, gifv, **kwargs):
+        super().__init__(**kwargs)
         self.gifv = gifv
-        super(GifVPreprocessor, self).__init__(**kwargs)
+        self.RE = re.compile(r'<gifv ([\w0-9_-]+) ([\w0-9_-]+[,?[\w0-9_-]+]?) ?/>$')
 
     def run(self, lines):
         new_lines = []
         for line in lines:
-            m = self.gifv.RE.match(line)
+            m = self.RE.match(line)
             if m:
                 filename = m.group(1)
                 extensions = m.group(2).split(',')
