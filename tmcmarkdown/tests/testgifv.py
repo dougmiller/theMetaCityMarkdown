@@ -1,6 +1,6 @@
 import markdown
 import unittest
-from tmcmarkdown.extentions.gifv import GifV
+from tmcmarkdown.extensions.gifv import GifV
 
 
 class TestGifV(unittest.TestCase):
@@ -41,6 +41,7 @@ class TestGifV(unittest.TestCase):
         provided = '<gifv sampleFileName extension extraUnneeded />'
         expected = '<p><gifv sampleFileName extension extraUnneeded /></p>'
         self.assertEqual(expected, markdown.markdown(provided, extensions=[GifV()]))
+
 
 if __name__ == '__main__':
     unittest.main()
