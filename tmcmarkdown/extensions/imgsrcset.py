@@ -1,7 +1,4 @@
 from markdown.extensions import Extension
-from markdown.inlinepatterns import ImageReferenceInlineProcessor
-from markdown.inlinepatterns import ImageInlineProcessor
-from markdown.inlinepatterns import IMAGE_LINK_RE
 from markdown.treeprocessors import Treeprocessor
 from markdown.util import etree
 from os.path import splitext
@@ -25,27 +22,9 @@ class ImgSrcSet(Extension):
             self.setConfig(key, value)
 
     def extendMarkdown(self, md):
-        image_src_set_inline_processor = ImgSrcSetInlineProcessor(IMAGE_LINK_RE, md)
-        image_src_set_inline_processor.config = self.config
-
-        image_src_set_reference_processor = ImgSrcSetReferenceProcessor(IMAGE_LINK_RE, md)
-        image_src_set_reference_processor.config = self.config
-
         img_src_tree_processor = ImgSrcSetTree()
-        img_src_tree_processor.config = self.config
-        '''
-        md.inlinePatterns.register(
-            image_src_set_inline_processor,
-            'img_src_set_inline',
-            151
-        )
+        img_src_tree_processor.config = self.getConfigs()
 
-        md.inlinePatterns.register(
-            image_src_set_reference_processor,
-            'img_src_set_reference',
-            151
-        )
-        '''
         md.treeprocessors.register(
             img_src_tree_processor,
             'img_src_tree_processor',
@@ -56,7 +35,7 @@ class ImgSrcSet(Extension):
 class ImgSrcSetTree(Treeprocessor):
     def run(self, root):
 
-        parent_map = {c:p for p in root.iter() for c in p}
+        parent_map = {c: p for p in root.iter() for c in p}
 
         for image_tag in root.findall('.//img'):
             src = image_tag.get('src')
@@ -66,13 +45,13 @@ class ImgSrcSetTree(Treeprocessor):
             if '://' in src:  # Not a link to tmc assets/external link
                 continue
 
-            assets_path = self.config.get("img_url_base")[0]
+            assets_path = self.config.get("img_url_base")
             path = urlparse(src).path
             file_name = splitext(path)[0]
 
             picture = etree.Element("picture")
 
-            for file_type in self.config.get("file_types")[0]:
+            for file_type in self.config.get("file_types"):
                 source = etree.SubElement(picture, "source")
                 source.set("srcset", '{}{}.{}'.format(assets_path, file_name, file_type['ext']))
                 source.set("type", 'image/' + file_type['ct'])
@@ -89,64 +68,6 @@ class ImgSrcSetTree(Treeprocessor):
             parent = parent_map[image_tag]
             index = list(parent).index(image_tag)
             parent[index] = picture
-
-
-class ImgSrcSetReferenceProcessor(ImageReferenceInlineProcessor):
-    def makeTag(self, src, title, text):
-        assets_path = self.config.get("img_url_base")[0]
-        path = urlparse(src).path
-        file_name = splitext(path)[0]
-
-        picture = etree.Element("picture")
-
-        for file_type in self.config.get("file_types")[0]:
-            source = etree.SubElement(picture, "source")
-            source.set("srcset", '{}{}.{}'.format(assets_path, file_name, file_type['ext']))
-            source.set("type", 'image/' + file_type['ct'])
-
-        image = etree.SubElement(picture, "img")
-
-        image.set("src", src)
-
-        if title is not None:
-            image.set("title", title)
-
-        image.set('alt', self.unescape(text))
-        return picture
-
-
-class ImgSrcSetInlineProcessor(ImageInlineProcessor):
-    """ Return a img element from the given match. """
-
-    def handleMatch(self, m, data):
-        text, index, handled = self.getText(data, m.end(0))
-        if not handled:
-            return None, None, None
-
-        src, title, index, handled = self.getLink(data, index)
-        if not handled:
-            return None, None, None
-
-        assets_path = self.config.get("img_url_base")[0]
-        path = urlparse(src).path
-        file_name = splitext(path)[0]
-
-        picture = etree.Element("picture")
-
-        for file_type in self.config.get("file_types")[0]:
-            source = etree.SubElement(picture, "source")
-            source.set("srcset", '{}{}.{}'.format(assets_path, file_name, file_type['ext']))
-            source.set("type", 'image/' + file_type['ct'])
-
-        image = etree.SubElement(picture, "img")
-
-        image.set("src", src)
-
-        if title is not None:
-            image.set("title", title)
-
-        image.set('alt', self.unescape(text))
-        return picture, m.start(0),
 
 
 def makeExtension(**kwargs):
