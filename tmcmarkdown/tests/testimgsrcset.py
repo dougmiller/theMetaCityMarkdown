@@ -8,15 +8,15 @@ class TestImgSrcSet(unittest.TestCase):
         pass
 
     def testInline(self):
-        provided = '![example alt text](https://example.com/image.jpg "Example image")'
-        expected = '<p><img alt="example alt text" src="https://example.com/image.jpg" title="Example image" /></p>'
+        provided = '![example alt text](image.jpg "Example title")'
+        expected = '<p><picture><source srcset="//assets.themetacity.com/images/image.flif" type="image/flif"></source><source srcset="//assets.themetacity.com/images/image.webm" type="image/webm"></source><img alt="example alt text" src="image.jpg" title="Example title" /></picture></p>'
         self.assertEqual(expected, markdown.markdown(provided, extensions=[ImgSrcSet()]))
 
     def testReference(self):
-        provided = '''![Example alt text][example]
+        provided = '''![example alt text][example]
 
-[example]:https://example.com/image.jpg "Example title tag"'''
-        expected = '<p><img alt="Example alt text" src="https://example.com/image.jpg" title="Example title tag" /></p>'
+[example]:image.jpg "Example title"'''
+        expected = '<p><picture><source srcset="//assets.themetacity.com/images/image.flif" type="image/flif"></source><source srcset="//assets.themetacity.com/images/image.webm" type="image/webm"></source><img alt="example alt text" src="image.jpg" title="Example title" /></picture></p>'
         self.assertEqual(expected, markdown.markdown(provided, extensions=[ImgSrcSet()]))
 
 

@@ -5,15 +5,19 @@ import re
 
 
 class GifV(Extension):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.config = {
             'video_url_base': ['//assets.themetacity.com/gifv/', 'URL of the directory the file resides in'],
             'css_class': ['gifv', 'CSS class to append to the video to identify it as a gifv']
         }
 
-    def extendMarkdown(self, md, md_globals):
-        md.preprocessors.add('gifv', GifVPreprocessor(self), '_begin')
+    def extendMarkdown(self, md):
+        md.preprocessors.register(
+            GifVPreprocessor(self),
+            'gifv',
+            30
+        )
 
 
 class GifVPreprocessor(Preprocessor):
@@ -45,5 +49,5 @@ class GifVPreprocessor(Preprocessor):
         return new_lines
 
 
-def makeExtension(*args, **kwargs):
-    return GifV(*args, **kwargs)
+def makeExtension(**kwargs):
+    return GifV(**kwargs)
